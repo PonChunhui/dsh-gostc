@@ -3,6 +3,17 @@
 All notable changes to the **dsh-gostc** DeepSeek Harness plugin are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/); versions follow [SemVer](https://semver.org/).
 
+## [1.4.3] - 2026-11-26
+
+### Fixed
+- System-service mode now actually persists after quitting DeepSeek Harness:
+  `gostc-cli install` only registers the Windows service without starting it, so the
+  backend previously fell back to the plugin-managed child (which dies with DSH).
+  Install now runs `install` + `start` in a single UAC session, releases the port from
+  any managed child first, and confirms the service is RUNNING before reporting
+  service mode. Kickoff/start also detect a running Windows service and label it
+  `service` instead of `external`.
+
 ## [1.4.2] - 2026-11-26
 
 ### Removed

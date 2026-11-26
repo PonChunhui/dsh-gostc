@@ -147,7 +147,7 @@ window.__ModuleLoader__.load({
     const OFFICIAL_URL = 'https://gostc.linux66.cn';
     const UPSTREAM_REPO = 'https://github.com/SianHH/gostc-open';
     const PLUGIN_REPO = 'https://github.com/PonChunhui/dsh-gostc';
-    const PLUGIN_VERSION = '1.4.2';
+    const PLUGIN_VERSION = '1.4.3';
 
     // ---- API helper: document-relative fetch through the Host proxy ----
     async function api(sub, body) {

@@ -389,8 +389,9 @@ export function createProcessManager(ctx, config) {
       // 1) reuse an already-healthy backend (e.g. a manually started gostc-gui.exe)
       const existing = await probe();
       if (existing.healthy) {
+        const svc = await queryService();
         state.phase = 'running';
-        state.mode = 'external';
+        state.mode = svc === 'running' ? 'service' : 'external';
         state.version = existing.version;
         state.error = null;
         state.retries = 0;
@@ -461,16 +462,20 @@ export function createProcessManager(ctx, config) {
     return "'" + String(s).replace(/'/g, "''") + "'";
   }
 
-  async function elevate(args) {
+  /** Run one or more exe invocations inside a SINGLE elevated (UAC) session. */
+  async function elevateScript(commands) {
     const sp = getSubprocess();
     if (!sp) throw new Error('subprocess 服务不可用');
-    const argList = '@(' + args.map(psQuote).join(',') + ')';
-    const script = `Start-Process -FilePath ${psQuote(exePath)} -ArgumentList ${argList} -Verb RunAs -WindowStyle Hidden -Wait`;
+    const inner = commands
+      .map((args) => `& ${psQuote(exePath)} ${args.map(psQuote).join(' ')}`)
+      .join('; if($LASTEXITCODE -ne 0){exit $LASTEXITCODE}; ');
+    const innerScript = inner + '; exit $LASTEXITCODE';
+    const outer = `$p = Start-Process -FilePath 'powershell.exe' -ArgumentList @('-NoProfile','-Command',${psQuote(innerScript)}) -Verb RunAs -WindowStyle Hidden -Wait -PassThru; exit $p.ExitCode`;
     const h = sp.spawn({
-      argv: ['powershell.exe', '-NoProfile', '-Command', script],
+      argv: ['powershell.exe', '-NoProfile', '-Command', outer],
       cwd: dataDir,
       stdio: { stdin: 'ignore', stdout: { maxBytes: 16 * 1024 }, stderr: { maxBytes: 16 * 1024 } },
-      graceMs: 60000,
+      graceMs: 120000,
     });
     const { exitCode } = await h.done;
     const errText = h.collected.stderr ? h.collected.stderr.readFrom(0).text : '';
@@ -479,24 +484,60 @@ export function createProcessManager(ctx, config) {
     }
   }
 
+  async function elevate(args) {
+    return elevateScript([args]);
+  }
+
+  /** Query the Windows service state: 'running' | 'stopped' | 'absent'. */
+  async function queryService() {
+    if (!isWindows) return 'absent';
+    const sp = getSubprocess();
+    if (!sp) return 'absent';
+    try {
+      const h = sp.spawn({
+        argv: ['sc.exe', 'query', 'gostc'],
+        cwd: dataDir,
+        stdio: { stdin: 'ignore', stdout: { maxBytes: 8 * 1024 }, stderr: { maxBytes: 8 * 1024 } },
+        graceMs: 8000,
+      });
+      const { exitCode } = await h.done;
+      const text = h.collected.stdout ? h.collected.stdout.readFrom(0).text : '';
+      if (exitCode !== 0) return 'absent';
+      if (/RUNNING/.test(text)) return 'running';
+      return 'stopped';
+    } catch {
+      return 'absent';
+    }
+  }
+
   async function serviceInstall() {
     if (!isWindows) { fail('安装为系统服务当前仅支持 Windows（UAC 提权）'); return snapshot(); }
     try {
       const ensured = await ensureClient(false);
       if (!ensured.ok) return snapshot();
+      // Release the port if a plugin-managed child currently owns it, so the
+      // Windows service can bind instead.
+      if (handle) { await stop(); }
       state.phase = 'starting';
       state.error = null;
       const args = ['install', '-web-addr', live.webAddr];
       if (live.webUser) args.push('-web-user', live.webUser, '-web-pwd', live.webPwd);
-      await elevate(args);
+      // kardianos `install` only registers the service; it does NOT start it.
+      // Start it in the same elevated session so it survives DSH exiting.
+      await elevateScript([args, ['start']]);
       const ready = await waitReady(10000);
-      if (ready.healthy) {
+      const svc = await queryService();
+      if (ready.healthy && svc === 'running') {
         state.phase = 'running';
         state.mode = 'service';
         state.version = ready.version || state.version;
         state.error = null;
+      } else if (svc === 'running') {
+        state.phase = 'starting';
+        state.mode = 'service';
+        state.error = '服务已启动，但后端尚未就绪，可稍后刷新';
       } else {
-        state.error = '服务已安装，但后端尚未就绪，可稍后刷新或手动启动服务';
+        state.error = '服务已安装，但未能启动（退出码见日志），可稍后手动启动服务';
         state.phase = 'stopped';
       }
       return snapshot();
@@ -529,8 +570,9 @@ export function createProcessManager(ctx, config) {
     const existing = await probe();
     if (disposed) return;
     if (existing.healthy) {
+      const svc = await queryService();
       state.phase = 'running';
-      state.mode = 'external';
+      state.mode = svc === 'running' ? 'service' : 'external';
       state.version = existing.version;
       state.error = null;
       state.retries = 0;
