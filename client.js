@@ -39,10 +39,14 @@ window.__ModuleLoader__.load({
         modeManaged: '插件托管', modeExternal: '外部进程', modeService: '系统服务', modeNone: '无',
         start: '启动', stop: '停止', restart: '重启', downloadClient: '下载客户端', updateClient: '更新客户端',
         installService: '安装为服务', uninstallService: '卸载服务',
-        platformUrlMissing: '未配置平台地址（platformUrl），无法自动下载客户端。请在插件配置中填写你的 gostc 平台地址。',
+        platformUrlMissing: '未配置平台地址（platformUrl），无法自动下载客户端。请在下方「设置」中填写你的 gostc 平台地址并保存。',
         unsupportedPlatform: '当前系统暂不支持自动安装客户端。',
         procLog: '进程日志', noProcLog: '暂无日志',
         procHint: '插件会自动下载并拉起 gostc 命令版客户端；若已有健康后端则直接复用。',
+        settingsTitle: '设置', settingsHint: '在此填写你的 gostc 平台地址等信息，保存后立即生效并持久化（无需改配置文件）。',
+        platformUrlLabel: '平台地址（platformUrl）', clientPackageLabel: '安装包文件名（留空自动按系统/架构挑选）',
+        webAddrLabel: '客户端监听地址（webAddr）', webUserLabel: 'webui 用户名（可选）', webPwdLabel: 'webui 密码（可选）',
+        autoStartLabel: '宿主启动时自动拉起客户端', saveSettings: '保存设置', settingsSaved: '设置已保存',
         busy: '处理中…',
       },
       en: {
@@ -68,6 +72,10 @@ window.__ModuleLoader__.load({
         unsupportedPlatform: 'This platform is not supported for automatic client installation yet.',
         procLog: 'Process log', noProcLog: 'No logs',
         procHint: 'The plugin downloads and launches the gostc command-line client automatically, reusing a healthy backend if one is already running.',
+        settingsTitle: 'Settings', settingsHint: 'Enter your gostc platform URL and related options here; saving takes effect immediately and persists (no config-file editing needed).',
+        platformUrlLabel: 'Platform URL (platformUrl)', clientPackageLabel: 'Package filename (empty = auto-pick by OS/arch)',
+        webAddrLabel: 'Client listen address (webAddr)', webUserLabel: 'webui username (optional)', webPwdLabel: 'webui password (optional)',
+        autoStartLabel: 'Auto-launch client on host start', saveSettings: 'Save settings', settingsSaved: 'Settings saved',
         busy: 'Working…',
       },
     };
@@ -160,6 +168,11 @@ window.__ModuleLoader__.load({
 .gostc-proc-actions{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;}
 .gostc-proc-log{background:var(--dsw-alias-bg-layer-2);border:var(--dsh-hairline-width,1px) solid var(--dsw-alias-border-l1);border-radius:var(--dsw-radius-md);padding:12px 14px;font-family:var(--ds-font-family-code);font-size:12px;color:var(--dsw-alias-label-secondary);white-space:pre-wrap;word-break:break-all;max-height:320px;overflow:auto;}
 .gostc-proc-section-title{font-size:13px;font-weight:600;color:var(--dsw-alias-label-secondary);margin:8px 0;}
+.gostc-proc-settings{background:var(--dsw-alias-card-fill);border:var(--dsh-hairline-width,1px) solid var(--dsw-alias-border-l1);border-radius:var(--dsw-radius-md);padding:14px 16px;margin-bottom:16px;}
+.gostc-proc-settings-head{display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;}
+.gostc-proc-settings-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:0 16px;margin-top:12px;}
+.gostc-proc-settings-foot{display:flex;align-items:center;gap:12px;margin-top:4px;}
+.gostc-set-ok{font-size:12px;color:var(--dsw-alias-state-success-primary);}
 `;
 
     // ---- small controls ----
@@ -306,6 +319,49 @@ window.__ModuleLoader__.load({
       return res.json();
     }
 
+    function SettingsForm({ t, snap, onSaved }) {
+      const [open, setOpen] = useState(!snap.platformUrl && !snap.hasExe);
+      const [form, setForm] = useState(() => ({
+        platformUrl: snap.platformUrl || '',
+        clientPackage: snap.clientPackage || '',
+        webAddr: snap.webAddr || '127.0.0.1:18080',
+        webUser: snap.webUser || '',
+        webPwd: snap.webPwd || '',
+        autoStart: snap.autoStart !== false,
+      }));
+      const [saving, setSaving] = useState(false);
+      const [saved, setSaved] = useState(false);
+      const [err, setErr] = useState(null);
+      const set = (k, v) => { setForm((f) => Object.assign({}, f, { [k]: v })); setSaved(false); };
+      const save = async () => {
+        setSaving(true); setErr(null);
+        try {
+          const j = await processCall('settings', form);
+          if (j.code !== 0) { setErr(j.msg); }
+          else { setSaved(true); if (j.data) onSaved(j.data); }
+        } catch (e) { setErr(e.message); }
+        finally { setSaving(false); }
+      };
+      return h('div', { className: 'gostc-proc-settings' },
+        h('div', { className: 'gostc-proc-settings-head', onClick: () => setOpen(!open), role: 'button', tabIndex: 0,
+          onKeyDown: (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setOpen(!open); } } },
+          h('span', { className: 'gostc-proc-section-title', style: { margin: 0 } }, t('settingsTitle')),
+          h('span', { className: 'gostc-muted' }, open ? '▾' : '▸')),
+        open ? h(React.Fragment, null,
+          h('div', { className: 'gostc-muted', style: { marginTop: '8px' } }, t('settingsHint')),
+          h('div', { className: 'gostc-proc-settings-grid' },
+            h(Field, { label: t('platformUrlLabel') }, h('input', { className: 'gostc-input', value: form.platformUrl, placeholder: 'https://your-gostc-server', onChange: (e) => set('platformUrl', e.target.value) })),
+            h(Field, { label: t('clientPackageLabel') }, h('input', { className: 'gostc-input', value: form.clientPackage, placeholder: 'gostc-cli.exe', onChange: (e) => set('clientPackage', e.target.value) })),
+            h(Field, { label: t('webAddrLabel') }, h('input', { className: 'gostc-input', value: form.webAddr, onChange: (e) => set('webAddr', e.target.value) })),
+            h(Field, { label: t('webUserLabel') }, h('input', { className: 'gostc-input', value: form.webUser, onChange: (e) => set('webUser', e.target.value) })),
+            h(Field, { label: t('webPwdLabel') }, h('input', { className: 'gostc-input', type: 'password', value: form.webPwd, onChange: (e) => set('webPwd', e.target.value) })),
+            h(Field, { label: t('autoStartLabel') }, h(Switch, { checked: form.autoStart, onChange: (v) => set('autoStart', v) }))),
+          h('div', { className: 'gostc-proc-settings-foot' },
+            h(Button, { variant: 'primary', disabled: saving, onClick: save }, saving ? t('busy') : t('saveSettings')),
+            saved ? h('span', { className: 'gostc-set-ok' }, t('settingsSaved')) : null,
+            err ? h('span', { className: 'gostc-muted', style: { color: 'var(--dsw-alias-state-error-primary)' } }, err) : null)) : null);
+    }
+
     function ProcessView({ t }) {
       const [snap, setSnap] = useState(null);
       const [error, setError] = useState(null);
@@ -348,6 +404,7 @@ window.__ModuleLoader__.load({
         !snap.supported ? h('div', { className: 'gostc-banner' }, h('span', { className: 'gostc-spacer' }, t('unsupportedPlatform'))) : null,
         needPlatform ? h('div', { className: 'gostc-banner' }, h('span', { className: 'gostc-spacer' }, t('platformUrlMissing'))) : null,
         error ? h('div', { className: 'gostc-banner' }, h('span', { className: 'gostc-spacer' }, error), h(Button, { onClick: load }, t('retry'))) : null,
+        h(SettingsForm, { t, snap, onSaved: setSnap }),
         h('div', { className: 'gostc-proc-status' },
           h('div', { className: 'gostc-proc-item' }, h('span', { className: 'gostc-proc-item-label' }, t('procPhase')),
             h('span', { className: 'gostc-proc-item-value', 'data-tone': tone }, t(PHASE_LABEL[snap.phase] || 'phaseIdle'))),

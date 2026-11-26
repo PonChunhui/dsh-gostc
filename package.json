@@ -1,6 +1,6 @@
 {
   "name": "dsh-gostc",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "type": "module",
   "description": "Gostc intranet-penetration manager for DeepSeek Harness: manage clients, tunnels and P2P links, and auto-download and launch the matching command-line client.",
   "license": "MIT",
@@ -55,7 +55,9 @@
     "@deepseek-ai/dsh-client-ui-sidebar": ">=0.2.0 <0.2.2 || >=0.2.2-rc.1 <0.3.0-0"
   },
   "dsh": {
-    "bundle": { "patch": "./cordis.patch.yml" },
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
     "client": {
       "platform": "web",
       "immediately": true,
