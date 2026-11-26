@@ -3,6 +3,15 @@
 All notable changes to the **dsh-gostc** DeepSeek Harness plugin are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/); versions follow [SemVer](https://semver.org/).
 
+## [1.4.4] - 2026-11-26
+
+### Fixed
+- Backend action buttons are now state-aware: Start is disabled while running;
+  Stop is enabled for a running plugin-managed child OR Windows service (service
+  stop goes through the SCM with one UAC prompt) and disabled for external / idle;
+  Restart only for a running managed child. Disabled buttons carry explanatory
+  tooltips. Reuse/start no longer mislabel a live managed child as `external`.
+
 ## [1.4.3] - 2026-11-26
 
 ### Fixed

@@ -38,6 +38,9 @@ window.__ModuleLoader__.load({
         phaseStopped: '已停止', phaseError: '错误', phaseUnsupported: '不支持',
         modeManaged: '插件托管', modeExternal: '外部进程', modeService: '系统服务', modeNone: '无',
         start: '启动', stop: '停止', restart: '重启', downloadClient: '下载客户端', updateClient: '更新客户端',
+        startDisabledRunning: '后端已在运行，无需再次启动。',
+        stopDisabledHint: '停止仅对运行中的「插件托管 / 系统服务」可用；外部进程不由插件管理，未运行时也不可停止。',
+        restartDisabledHint: '重启仅对运行中的「插件托管」进程可用。',
         installService: '安装为服务', uninstallService: '卸载服务',
         platformUrlMissing: '未配置平台地址（platformUrl），无法自动下载客户端。请在下方「设置」中填写你的 gostc 平台地址并保存。',
         unsupportedPlatform: '当前系统暂不支持自动安装客户端。',
@@ -98,6 +101,9 @@ window.__ModuleLoader__.load({
         phaseStopped: 'Stopped', phaseError: 'Error', phaseUnsupported: 'Unsupported',
         modeManaged: 'Plugin-managed', modeExternal: 'External process', modeService: 'Windows service', modeNone: 'None',
         start: 'Start', stop: 'Stop', restart: 'Restart', downloadClient: 'Download client', updateClient: 'Update client',
+        startDisabledRunning: 'Backend is already running; no need to start again.',
+        stopDisabledHint: 'Stop is only available for a running plugin-managed child or Windows service; external processes are not managed here, and nothing can be stopped while idle.',
+        restartDisabledHint: 'Restart is only available for a running plugin-managed child.',
         installService: 'Install as service', uninstallService: 'Uninstall service',
         platformUrlMissing: 'No platform URL (platformUrl) configured, so the client cannot be downloaded automatically. Set your gostc platform URL in the plugin config.',
         unsupportedPlatform: 'This platform is not supported for automatic client installation yet.',
@@ -147,7 +153,7 @@ window.__ModuleLoader__.load({
     const OFFICIAL_URL = 'https://gostc.linux66.cn';
     const UPSTREAM_REPO = 'https://github.com/SianHH/gostc-open';
     const PLUGIN_REPO = 'https://github.com/PonChunhui/dsh-gostc';
-    const PLUGIN_VERSION = '1.4.3';
+    const PLUGIN_VERSION = '1.4.4';
 
     // ---- API helper: document-relative fetch through the Host proxy ----
     async function api(sub, body) {
@@ -496,6 +502,8 @@ window.__ModuleLoader__.load({
       if (!snap) return h('div', { className: 'gostc-empty' }, t('loading'));
 
       const running = snap.phase === 'running';
+      const canStop = running && (snap.mode === 'managed' || snap.mode === 'service');
+      const canRestart = running && snap.mode === 'managed';
       const tone = snap.phase === 'error' ? 'err' : (running ? 'ok' : '');
       const modeText = snap.mode ? t(MODE_LABEL[snap.mode]) : t('modeNone');
       const needPlatform = !snap.platformUrl && !snap.hasExe;
@@ -516,9 +524,9 @@ window.__ModuleLoader__.load({
           h('div', { className: 'gostc-proc-item' }, h('span', { className: 'gostc-proc-item-label' }, t('procTarget')),
             h('span', { className: 'gostc-proc-item-value' }, snap.target ? (snap.target.os + '/' + snap.target.arch) : '—'))),
         h('div', { className: 'gostc-proc-actions' },
-          h(Button, { variant: 'primary', disabled: acting || !snap.supported, onClick: () => act('start') }, acting ? t('busy') : t('start')),
-          h(Button, { disabled: acting || snap.mode !== 'managed', onClick: () => act('stop') }, t('stop')),
-          h(Button, { disabled: acting || !snap.supported, onClick: () => act('restart') }, t('restart')),
+          h(Button, { variant: 'primary', disabled: acting || !snap.supported || running, title: running ? t('startDisabledRunning') : undefined, onClick: () => act('start') }, acting ? t('busy') : t('start')),
+          h(Button, { disabled: acting || !canStop, title: canStop ? undefined : t('stopDisabledHint'), onClick: () => act('stop') }, t('stop')),
+          h(Button, { disabled: acting || !canRestart, title: canRestart ? undefined : t('restartDisabledHint'), onClick: () => act('restart') }, t('restart')),
           h(Button, { disabled: acting || !snap.supported || !snap.platformUrl, onClick: () => act('download', { force: true }) }, snap.hasExe ? t('updateClient') : t('downloadClient')),
           h(Button, { disabled: acting || !snap.supported, onClick: () => act('service/install') }, t('installService')),
           h(Button, { variant: 'danger', disabled: acting || !snap.supported, onClick: () => act('service/uninstall') }, t('uninstallService'))),

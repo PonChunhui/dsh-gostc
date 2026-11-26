@@ -391,7 +391,7 @@ export function createProcessManager(ctx, config) {
       if (existing.healthy) {
         const svc = await queryService();
         state.phase = 'running';
-        state.mode = svc === 'running' ? 'service' : 'external';
+        state.mode = handle ? 'managed' : (svc === 'running' ? 'service' : 'external');
         state.version = existing.version;
         state.error = null;
         state.retries = 0;
@@ -435,6 +435,26 @@ export function createProcessManager(ctx, config) {
   }
 
   async function stop() {
+    // A Windows service is stopped through the SCM (needs elevation), not by
+    // killing a child handle.
+    if (state.mode === 'service' && !handle) {
+      try {
+        await elevate(['stop']);
+        state.phase = 'stopped';
+        state.mode = null;
+        state.error = null;
+        state.retries = 0;
+      } catch (err) {
+        state.error = err.message || String(err);
+      }
+      return snapshot();
+    }
+    // An external process (e.g. a manually launched gostc-gui.exe) is not ours
+    // to kill; refuse rather than silently no-op.
+    if (state.mode === 'external' && !handle) {
+      state.error = '外部进程不由插件管理，无法在此停止；请自行退出该进程或改用系统服务。';
+      return snapshot();
+    }
     intentionalStop = true;
     if (restartTimer) { clearTimeout(restartTimer); restartTimer = null; }
     const h = handle;
