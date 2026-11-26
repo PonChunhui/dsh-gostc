@@ -20,6 +20,8 @@ import os from 'node:os';
 const MAX_LOG = 8000;
 const MAX_RESTARTS = 3;
 const SETTINGS_KEYS = ['platformUrl', 'clientPackage', 'webAddr', 'webUser', 'webPwd', 'autoStart'];
+/** Official gostc platform; used as the default download source / homepage. */
+export const DEFAULT_PLATFORM_URL = 'https://gostc.linux66.cn';
 
 function defaultDataDir() {
   const local = process.env.LOCALAPPDATA;
@@ -134,7 +136,7 @@ export function createProcessManager(ctx, config) {
   // Panel-editable settings: cordis config provides defaults; dataDir/settings.json
   // (written by the in-panel settings form) overrides them and survives restarts.
   const live = {
-    platformUrl: String(config?.platformUrl || '').replace(/\/+$/, ''),
+    platformUrl: String(config?.platformUrl || DEFAULT_PLATFORM_URL).replace(/\/+$/, ''),
     clientPackage: String(config?.clientPackage || ''),
     webAddr: String(config?.webAddr || '127.0.0.1:18080'),
     webUser: String(config?.webUser || ''),

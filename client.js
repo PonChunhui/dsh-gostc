@@ -47,6 +47,21 @@ window.__ModuleLoader__.load({
         platformUrlLabel: '平台地址（platformUrl）', clientPackageLabel: '安装包文件名（留空自动按系统/架构挑选）',
         webAddrLabel: '客户端监听地址（webAddr）', webUserLabel: 'webui 用户名（可选）', webPwdLabel: 'webui 密码（可选）',
         autoStartLabel: '宿主启动时自动拉起客户端', saveSettings: '保存设置', settingsSaved: '设置已保存',
+        tabAbout: '关于', aboutOfficial: '官网主页', aboutOfficialHint: '点击链接可直接跳转 gostc 官方平台（注册 / 登录 / 获取密钥 / 管理节点）。',
+        aboutGuide: '快速上手', aboutLinks: '文档与源码', aboutContact: '联系与反馈', aboutEnv: '环境信息', aboutTips: '常见提示',
+        guide1: '在「后端进程 → 设置」确认平台地址（默认 https://gostc.linux66.cn），按需改成你自己的平台并保存。',
+        guide2: '点「下载客户端」按当前系统 / 架构自动安装命令版客户端，再点「启动」；若已有健康后端会自动复用，无需重复拉起。',
+        guide3: '在「客户端」页新增连接：填名称、服务端地址与连接密钥（官网「客户端 → 连接密钥」获取），打开开关即建立穿透。',
+        guide4: '需要把本地服务暴露到公网时，在「隧道」或「P2P」页新增条目并启动；公网地址见卡片上的「地址2」。',
+        guide5: '运行日志在「日志」页查看；运行中的条目不可编辑 / 删除，请先停止再修改。',
+        linkUpstream: 'gostc 上游仓库（SianHH/gostc-open）', linkDocs: '使用文档（仓库 docs 目录）', linkPluginRepo: '本插件仓库（PonChunhui/dsh-gostc）',
+        contactIssues: '提交问题 / 建议（本插件 Issues）', contactUpstreamIssues: 'gostc 本体问题（上游 Issues）',
+        contactAdmin: '账号、节点、套餐等问题请联系你所用站点的管理员（官网登录后可见联系方式）；本插件仅负责本地客户端与穿透管理。',
+        envPluginVer: '插件版本', envBackendVer: '后端版本', envTarget: '系统 / 架构', envDataDir: '数据目录',
+        tip1: '连接失败：确认后端已启动、平台地址正确；面板会给出错误与重试按钮。',
+        tip2: '运行中的客户端 / 隧道不可编辑或删除，先关闭开关停止后再修改。',
+        tip3: '「安装为服务」会触发 Windows UAC 提权；取消授权会报错，属正常现象。',
+        tip4: '客户端连接密钥等同凭证，请勿外传或截图公开；泄露可在官网重置。',
         busy: '处理中…',
       },
       en: {
@@ -76,12 +91,31 @@ window.__ModuleLoader__.load({
         platformUrlLabel: 'Platform URL (platformUrl)', clientPackageLabel: 'Package filename (empty = auto-pick by OS/arch)',
         webAddrLabel: 'Client listen address (webAddr)', webUserLabel: 'webui username (optional)', webPwdLabel: 'webui password (optional)',
         autoStartLabel: 'Auto-launch client on host start', saveSettings: 'Save settings', settingsSaved: 'Settings saved',
+        tabAbout: 'About', aboutOfficial: 'Official website', aboutOfficialHint: 'Click to open the gostc platform (sign up / sign in / get keys / manage nodes).',
+        aboutGuide: 'Quick start', aboutLinks: 'Docs & source', aboutContact: 'Contact & feedback', aboutEnv: 'Environment', aboutTips: 'Tips',
+        guide1: 'In Backend → Settings confirm the platform URL (default https://gostc.linux66.cn); change it to your own platform if needed and save.',
+        guide2: 'Click Download client to auto-install the CLI for your OS/arch, then Start. A healthy existing backend is reused automatically.',
+        guide3: 'On the Clients tab add a connection: name, server address and key (from the website "Clients → key"); flip the switch to tunnel.',
+        guide4: 'To expose a local service publicly, add an entry on the Tunnel or P2P tab and start it; the public address is shown as "address 2".',
+        guide5: 'View runtime logs on the Logs tab; running entries cannot be edited/deleted — stop them first.',
+        linkUpstream: 'gostc upstream repo (SianHH/gostc-open)', linkDocs: 'User docs (repo docs folder)', linkPluginRepo: 'This plugin repo (PonChunhui/dsh-gostc)',
+        contactIssues: 'Report issues / suggestions (plugin Issues)', contactUpstreamIssues: 'gostc core issues (upstream Issues)',
+        contactAdmin: 'For account / node / plan issues contact your site admin (contact info on the website after sign-in); this plugin only manages the local client and tunnels.',
+        envPluginVer: 'Plugin version', envBackendVer: 'Backend version', envTarget: 'OS / arch', envDataDir: 'Data dir',
+        tip1: 'Connection failed: make sure the backend is running and the platform URL is correct; the panel shows the error and a retry button.',
+        tip2: 'Running clients / tunnels cannot be edited or deleted; switch them off first.',
+        tip3: 'Install as service triggers Windows UAC elevation; cancelling it reports an error, which is expected.',
+        tip4: 'The client key is a credential — do not share or screenshot it publicly; reset it on the website if leaked.',
         busy: 'Working…',
       },
     };
 
     const KINDS = ['client', 'tunnel', 'p2p'];
-    const TAB_LABEL = { client: 'tabClient', tunnel: 'tabTunnel', p2p: 'tabP2p', logger: 'tabLogger', process: 'tabProcess' };
+    const TAB_LABEL = { client: 'tabClient', tunnel: 'tabTunnel', p2p: 'tabP2p', logger: 'tabLogger', process: 'tabProcess', about: 'tabAbout' };
+    const OFFICIAL_URL = 'https://gostc.linux66.cn';
+    const UPSTREAM_REPO = 'https://github.com/SianHH/gostc-open';
+    const PLUGIN_REPO = 'https://github.com/PonChunhui/dsh-gostc';
+    const PLUGIN_VERSION = '1.3.0';
 
     // ---- API helper: document-relative fetch through the Host proxy ----
     async function api(sub, body) {
@@ -173,6 +207,11 @@ window.__ModuleLoader__.load({
 .gostc-proc-settings-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:0 16px;margin-top:12px;}
 .gostc-proc-settings-foot{display:flex;align-items:center;gap:12px;margin-top:4px;}
 .gostc-set-ok{font-size:12px;color:var(--dsw-alias-state-success-primary);}
+.gostc-about-official{display:flex;flex-direction:column;gap:6px;margin-top:8px;padding:12px;border:var(--dsh-hairline-width) solid var(--dsw-alias-border-l1);border-radius:var(--dsw-radius-md);background:var(--dsw-alias-card-fill);}
+.gostc-about-link{display:inline-flex;align-items:center;gap:6px;color:var(--dsw-alias-state-business-primary);text-decoration:none;font-weight:600;font-size:13px;}
+.gostc-about-link:hover{text-decoration:underline;}
+.gostc-about-links{display:flex;flex-direction:column;gap:8px;margin-top:8px;}
+.gostc-about-list{margin:8px 0 0;padding-left:20px;display:flex;flex-direction:column;gap:6px;color:var(--dsw-alias-label-secondary);font-size:13px;line-height:1.6;}
 `;
 
     // ---- small controls ----
@@ -426,6 +465,42 @@ window.__ModuleLoader__.load({
     }
 
     // ---- main panel ----
+    function AboutLink({ href, children }) {
+      return h('a', { className: 'gostc-about-link', href, target: '_blank', rel: 'noopener noreferrer' }, children, h('span', { 'aria-hidden': true }, '↗'));
+    }
+
+    function AboutView({ t, version }) {
+      const [proc, setProc] = useState(null);
+      useEffect(() => {
+        let alive = true;
+        processCall('status', {}).then((j) => { if (alive && j && j.data) setProc(j.data); }).catch(() => {});
+        return () => { alive = false; };
+      }, []);
+      const section = (title, body) => h('div', { className: 'gostc-proc-section' },
+        h('div', { className: 'gostc-proc-section-title' }, title), body);
+      return h('div', { className: 'gostc-proc' },
+        section(t('aboutOfficial'), h('div', { className: 'gostc-about-official' },
+          h(AboutLink, { href: OFFICIAL_URL }, OFFICIAL_URL),
+          h('div', { className: 'gostc-muted' }, t('aboutOfficialHint')))),
+        section(t('aboutGuide'), h('ol', { className: 'gostc-about-list' },
+          ['guide1', 'guide2', 'guide3', 'guide4', 'guide5'].map((k) => h('li', { key: k }, t(k))))),
+        section(t('aboutLinks'), h('div', { className: 'gostc-about-links' },
+          h(AboutLink, { href: UPSTREAM_REPO }, t('linkUpstream')),
+          h(AboutLink, { href: UPSTREAM_REPO + '/tree/main/docs' }, t('linkDocs')),
+          h(AboutLink, { href: PLUGIN_REPO }, t('linkPluginRepo')))),
+        section(t('aboutContact'), h('div', { className: 'gostc-about-links' },
+          h(AboutLink, { href: PLUGIN_REPO + '/issues' }, t('contactIssues')),
+          h(AboutLink, { href: UPSTREAM_REPO + '/issues' }, t('contactUpstreamIssues')),
+          h('div', { className: 'gostc-muted' }, t('contactAdmin')))),
+        section(t('aboutEnv'), h('div', { className: 'gostc-proc-grid' },
+          h('div', { className: 'gostc-proc-item' }, h('span', { className: 'gostc-proc-k' }, t('envPluginVer')), h('span', { className: 'gostc-proc-v' }, PLUGIN_VERSION)),
+          h('div', { className: 'gostc-proc-item' }, h('span', { className: 'gostc-proc-k' }, t('envBackendVer')), h('span', { className: 'gostc-proc-v' }, version || '—')),
+          h('div', { className: 'gostc-proc-item' }, h('span', { className: 'gostc-proc-k' }, t('envTarget')), h('span', { className: 'gostc-proc-v' }, proc && proc.target ? proc.target.os + '/' + proc.target.arch : '—')),
+          h('div', { className: 'gostc-proc-item' }, h('span', { className: 'gostc-proc-k' }, t('envDataDir')), h('span', { className: 'gostc-proc-v', style: { wordBreak: 'break-all' } }, proc ? proc.dataDir : '—')))),
+        section(t('aboutTips'), h('ul', { className: 'gostc-about-list' },
+          ['tip1', 'tip2', 'tip3', 'tip4'].map((k) => h('li', { key: k }, t(k))))));
+    }
+
     function GostcPage({ t }) {
       const [tab, setTab] = useState('client');
       const [data, setData] = useState({ client: null, tunnel: null, p2p: null });
@@ -492,11 +567,11 @@ window.__ModuleLoader__.load({
           h('span', { className: 'gostc-title' }, t('title')),
           version ? h('span', { className: 'gostc-version' }, t('version') + ' ' + version) : null),
         h('div', { className: 'gostc-tabs', role: 'tablist' },
-          ['client', 'tunnel', 'p2p', 'logger', 'process'].map((k) => h('button', {
+          ['client', 'tunnel', 'p2p', 'logger', 'process', 'about'].map((k) => h('button', {
             key: k, type: 'button', className: 'gostc-tab', role: 'tab',
             'data-active': tab === k, 'aria-selected': tab === k, onClick: () => setTab(k),
           }, t(TAB_LABEL[k])))),
-        tab === 'process' ? h(ProcessView, { t }) : isLogger ? h(LoggerView, { t }) : h(React.Fragment, null,
+        tab === 'about' ? h(AboutView, { t, version }) : tab === 'process' ? h(ProcessView, { t }) : isLogger ? h(LoggerView, { t }) : h(React.Fragment, null,
           error ? h('div', { className: 'gostc-banner' },
             h('span', { className: 'gostc-spacer' }, t('connectionFailed') + '：' + error),
             h(Button, { onClick: () => load(tab) }, t('retry'))) : null,
