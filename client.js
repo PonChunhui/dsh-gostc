@@ -48,6 +48,7 @@ window.__ModuleLoader__.load({
         webAddrLabel: '客户端监听地址（webAddr）', webUserLabel: 'webui 用户名（可选）', webPwdLabel: 'webui 密码（可选）',
         autoStartLabel: '宿主启动时自动拉起客户端', saveSettings: '保存设置', settingsSaved: '设置已保存',
         tabAbout: '关于', aboutOfficial: '官网主页', aboutOfficialHint: '点击链接可直接跳转 gostc 官方平台（注册 / 登录 / 获取密钥 / 管理节点）。',
+        aboutTagline: '在 DeepSeek Harness 里管理 gostc 内网穿透：自动下载并拉起客户端，管理客户端 / 隧道 / P2P 与日志。',
         aboutGuide: '快速上手', aboutLinks: '文档与源码', aboutContact: '联系与反馈', aboutEnv: '环境信息', aboutTips: '常见提示',
         guide1: '在「后端进程 → 设置」确认平台地址（默认 https://gostc.linux66.cn），按需改成你自己的平台并保存。',
         guide2: '点「下载客户端」按当前系统 / 架构自动安装命令版客户端，再点「启动」；若已有健康后端会自动复用，无需重复拉起。',
@@ -67,6 +68,7 @@ window.__ModuleLoader__.load({
         selftestOk: '正常', selftestFail: '异常',
         selftestHintOk: '后端与平台均正常，可直接在「客户端」页添加连接并开启隧道。',
         selftestHintBad: '后端未就绪：到「后端进程」页启动或下载客户端；平台不可达：检查网络 / 平台地址。',
+        selftestIdle: '点击「立即自检」探测本地后端与平台连通性，并给出下一步建议。',
         aboutFaq: '常见问题',
         faq1q: '提示「无法连接 gostc 后端」怎么办？', faq1a: '到「后端进程」页点「启动」或「下载客户端」；若已有 gostc 客户端在运行，确认其 web 监听地址与设置中的 webAddr 一致（默认 127.0.0.1:18080）。',
         faq2q: '隧道 / 客户端开关打开后不生效？', faq2a: '确认连接密钥与服务器地址正确、服务端节点在线；查看「日志」页的 FRP 报错；运行中的条目需先停止才能修改配置。',
@@ -106,6 +108,7 @@ window.__ModuleLoader__.load({
         webAddrLabel: 'Client listen address (webAddr)', webUserLabel: 'webui username (optional)', webPwdLabel: 'webui password (optional)',
         autoStartLabel: 'Auto-launch client on host start', saveSettings: 'Save settings', settingsSaved: 'Settings saved',
         tabAbout: 'About', aboutOfficial: 'Official website', aboutOfficialHint: 'Click to open the gostc platform (sign up / sign in / get keys / manage nodes).',
+        aboutTagline: 'Manage gostc intranet penetration inside DeepSeek Harness: auto-download and launch the client, manage clients / tunnels / P2P and logs.',
         aboutGuide: 'Quick start', aboutLinks: 'Docs & source', aboutContact: 'Contact & feedback', aboutEnv: 'Environment', aboutTips: 'Tips',
         guide1: 'In Backend → Settings confirm the platform URL (default https://gostc.linux66.cn); change it to your own platform if needed and save.',
         guide2: 'Click Download client to auto-install the CLI for your OS/arch, then Start. A healthy existing backend is reused automatically.',
@@ -125,6 +128,7 @@ window.__ModuleLoader__.load({
         selftestOk: 'OK', selftestFail: 'Failed',
         selftestHintOk: 'Backend and platform are healthy — add a connection on the Clients tab and enable tunnels.',
         selftestHintBad: 'Backend not ready: start or download the client on the Backend tab. Platform unreachable: check network / platform URL.',
+        selftestIdle: 'Run the self test to probe local backend and platform connectivity, with next-step guidance.',
         aboutFaq: 'FAQ',
         faq1q: 'What if it says "cannot connect to gostc backend"?', faq1a: 'On the Backend tab click Start or Download client. If a gostc client is already running, make sure its web listen address matches webAddr in Settings (default 127.0.0.1:18080).',
         faq2q: 'A tunnel / client switch is on but nothing happens?', faq2a: 'Verify the connection key and server address, and that the server node is online; check FRP errors on the Logs tab. Running entries must be stopped before editing.',
@@ -143,7 +147,7 @@ window.__ModuleLoader__.load({
     const OFFICIAL_URL = 'https://gostc.linux66.cn';
     const UPSTREAM_REPO = 'https://github.com/SianHH/gostc-open';
     const PLUGIN_REPO = 'https://github.com/PonChunhui/dsh-gostc';
-    const PLUGIN_VERSION = '1.4.0';
+    const PLUGIN_VERSION = '1.4.1';
 
     // ---- API helper: document-relative fetch through the Host proxy ----
     async function api(sub, body) {
@@ -246,6 +250,24 @@ window.__ModuleLoader__.load({
 .gostc-dot{display:inline-block;width:8px;height:8px;border-radius:50%;flex:none;}
 .gostc-qr{width:120px;height:120px;object-fit:contain;border:1px solid var(--dsw-alias-border-l1);border-radius:var(--dsw-radius-sm);background:#fff;}
 .gostc-about-list{margin:8px 0 0;padding-left:20px;display:flex;flex-direction:column;gap:6px;color:var(--dsw-alias-label-secondary);font-size:13px;line-height:1.6;}
+.gostc-about{display:flex;flex-direction:column;gap:16px;}
+.gostc-about-hero{display:flex;flex-wrap:wrap;align-items:center;gap:16px;padding:16px 18px;border:var(--dsh-hairline-width,1px) solid var(--dsw-alias-border-l1);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-card-fill);}
+.gostc-about-hero-main{display:flex;flex-direction:column;gap:6px;flex:1;min-width:220px;}
+.gostc-about-title{display:flex;align-items:center;gap:8px;font-size:18px;font-weight:700;color:var(--dsw-alias-label-primary);}
+.gostc-about-ver{font-size:11px;font-weight:600;padding:2px 8px;border-radius:var(--dsw-radius-xs);background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-secondary);}
+.gostc-about-tag{font-size:13px;color:var(--dsw-alias-label-secondary);line-height:1.5;}
+.gostc-about-quick{display:flex;flex-wrap:wrap;gap:8px;}
+.gostc-about-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border:var(--dsh-hairline-width,1px) solid var(--dsw-alias-border-l2);border-radius:var(--dsw-radius-sm);background:var(--dsw-alias-button-elevated-fill);color:var(--dsw-alias-label-primary);font-size:12px;font-weight:600;text-decoration:none;}
+.gostc-about-chip:hover{background:var(--dsw-alias-interactive-bg-hover);border-color:var(--dsw-alias-state-business-primary);color:var(--dsw-alias-state-business-primary);}
+.gostc-about-cols{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:16px;align-items:start;}
+@media (max-width:900px){.gostc-about-cols{grid-template-columns:1fr;}}
+.gostc-about-col{display:flex;flex-direction:column;gap:16px;min-width:0;}
+.gostc-about-card{display:flex;flex-direction:column;gap:10px;padding:14px 16px;border:var(--dsh-hairline-width,1px) solid var(--dsw-alias-border-l1);border-radius:var(--dsw-radius-md);background:var(--dsw-alias-card-fill);}
+.gostc-about-card-title{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0;font-size:13px;font-weight:600;color:var(--dsw-alias-label-secondary);}
+.gostc-about-card .gostc-about-links{margin-top:0;}
+.gostc-about-card .gostc-about-list{margin-top:0;}
+.gostc-about-card .gostc-faq-item{margin-top:0;}
+.gostc-about-card .gostc-faq-item + .gostc-faq-item{margin-top:8px;}
 `;
 
     // ---- small controls ----
@@ -545,8 +567,10 @@ window.__ModuleLoader__.load({
         processCall('status', {}).then((j) => { if (alive && j && j.data) setProc(j.data); }).catch(() => {});
         return () => { alive = false; };
       }, []);
-      const section = (title, body) => h('div', { className: 'gostc-proc-section' },
-        h('div', { className: 'gostc-proc-section-title' }, title), body);
+      const card = (title, action, body) => h('div', { className: 'gostc-about-card' },
+        h('div', { className: 'gostc-about-card-title' }, h('span', null, title), action || null), body);
+      const chip = (href, label) => h('a', { className: 'gostc-about-chip', href, target: '_blank', rel: 'noopener noreferrer' },
+        label, h('span', { 'aria-hidden': true }, '↗'));
       const dot = (ok) => h('span', { className: 'gostc-dot', style: { background: ok ? 'var(--dsw-alias-state-success-primary)' : 'var(--dsw-alias-state-error-primary)' } });
       const runTest = async () => {
         setTesting(true);
@@ -566,51 +590,60 @@ window.__ModuleLoader__.load({
         'time: ' + new Date().toISOString(),
       ].join('\n');
       const doCopy = async () => { const ok = await copyText(diagText()); setCopied(ok); setTimeout(() => setCopied(false), 2000); };
-      return h('div', { className: 'gostc-proc' },
-        section(t('aboutOfficial'), h('div', { className: 'gostc-about-official' },
-          h(AboutLink, { href: OFFICIAL_URL }, OFFICIAL_URL),
-          h('div', { className: 'gostc-muted' }, t('aboutOfficialHint')),
-          h('div', { className: 'gostc-about-links', style: { marginTop: '8px' } },
-            h(AboutLink, { href: OFFICIAL_URL + '/login' }, t('deepRegister')),
-            h(AboutLink, { href: OFFICIAL_URL + '/normal/gost/client' }, t('deepKey')),
-            h(AboutLink, { href: OFFICIAL_URL + '/download' }, t('deepDownload')),
-            h(AboutLink, { href: OFFICIAL_URL + '/normal/gost/client/tunnel' }, t('deepTunnel'))))),
-        section(t('aboutSelftest'), h('div', null,
-          h('div', { className: 'gostc-proc-settings-foot', style: { marginTop: 0 } },
-            h(Button, { variant: 'primary', disabled: testing, onClick: runTest }, testing ? t('busy') : t('selftestRun')),
-            copied ? h('span', { className: 'gostc-set-ok' }, t('diagCopied')) : null),
-          test ? h('div', { className: 'gostc-proc-grid', style: { marginTop: '8px' } },
-            h('div', { className: 'gostc-proc-item' }, dot(test.backend && test.backend.healthy), h('span', { className: 'gostc-proc-k' }, t('selftestBackend')), h('span', { className: 'gostc-proc-v' }, test.backend && test.backend.healthy ? (t('selftestOk') + (test.backend.version ? ' ' + test.backend.version : '')) : t('selftestFail'))),
-            h('div', { className: 'gostc-proc-item' }, dot(test.platform && test.platform.reachable), h('span', { className: 'gostc-proc-k' }, t('selftestPlatform')), h('span', { className: 'gostc-proc-v' }, test.platform && test.platform.reachable ? t('selftestOk') : (test.platform && test.platform.error) || t('selftestFail'))),
-            test.error ? h('div', { className: 'gostc-proc-item' }, h('span', { className: 'gostc-proc-v', style: { color: 'var(--dsw-alias-state-error-primary)' } }, test.error)) : null,
-            h('div', { className: 'gostc-muted', style: { gridColumn: '1 / -1' } }, test.backend && test.backend.healthy ? t('selftestHintOk') : t('selftestHintBad'))) : null)),
-        section(t('aboutGuide'), h('ol', { className: 'gostc-about-list' },
-          ['guide1', 'guide2', 'guide3', 'guide4', 'guide5'].map((k) => h('li', { key: k }, t(k))))),
-        section(t('aboutFaq'), h('div', null,
-          [1, 2, 3, 4].map((n) => h(FaqItem, { key: n, q: t('faq' + n + 'q'), a: t('faq' + n + 'a') })))),
-        section(t('aboutLinks'), h('div', { className: 'gostc-about-links' },
-          h(AboutLink, { href: UPSTREAM_REPO }, t('linkUpstream')),
-          h(AboutLink, { href: UPSTREAM_REPO + '/tree/main/docs' }, t('linkDocs')),
-          h(AboutLink, { href: PLUGIN_REPO }, t('linkPluginRepo')),
-          h(AboutLink, { href: PLUGIN_REPO + '/blob/main/CHANGELOG.md' }, t('linkChangelog')),
-          h(AboutLink, { href: PLUGIN_REPO + '/blob/main/ROADMAP.md' }, t('linkRoadmap')))),
-        section(t('aboutContact'), h('div', { className: 'gostc-about-links' },
-          h(AboutLink, { href: PLUGIN_REPO + '/issues' }, t('contactIssues')),
-          h(AboutLink, { href: UPSTREAM_REPO + '/issues' }, t('contactUpstreamIssues')),
-          proc && proc.contactEmail ? h(AboutLink, { href: 'mailto:' + proc.contactEmail }, t('contactEmail') + ': ' + proc.contactEmail) : null,
-          proc && proc.contactQQ ? h('span', { className: 'gostc-about-link' }, t('contactQQ') + ': ' + proc.contactQQ) : null,
-          proc && proc.contactWeChat ? h('img', { className: 'gostc-qr', src: proc.contactWeChat, alt: t('contactWeChat') }) : null,
-          h('div', { className: 'gostc-muted' }, t('contactAdmin')))),
-        section(t('aboutEnv'), h('div', null,
-          h('div', { className: 'gostc-proc-grid' },
-            h('div', { className: 'gostc-proc-item' }, h('span', { className: 'gostc-proc-k' }, t('envPluginVer')), h('span', { className: 'gostc-proc-v' }, PLUGIN_VERSION)),
-            h('div', { className: 'gostc-proc-item' }, h('span', { className: 'gostc-proc-k' }, t('envBackendVer')), h('span', { className: 'gostc-proc-v' }, version || '—')),
-            h('div', { className: 'gostc-proc-item' }, h('span', { className: 'gostc-proc-k' }, t('envTarget')), h('span', { className: 'gostc-proc-v' }, proc && proc.target ? proc.target.os + '/' + proc.target.arch : '—')),
-            h('div', { className: 'gostc-proc-item' }, h('span', { className: 'gostc-proc-k' }, t('envDataDir')), h('span', { className: 'gostc-proc-v', style: { wordBreak: 'break-all' } }, proc ? proc.dataDir : '—'))),
-          h('div', { className: 'gostc-proc-settings-foot' },
-            h(Button, { onClick: doCopy }, copied ? t('diagCopied') : t('diagCopy'))))),
-        section(t('aboutTips'), h('ul', { className: 'gostc-about-list' },
-          ['tip1', 'tip2', 'tip3', 'tip4'].map((k) => h('li', { key: k }, t(k))))));
+      return h('div', { className: 'gostc-about' },
+        h('div', { className: 'gostc-about-hero' },
+          h('div', { className: 'gostc-about-hero-main' },
+            h('div', { className: 'gostc-about-title' }, 'Gostc',
+              h('span', { className: 'gostc-about-ver' }, 'v' + PLUGIN_VERSION)),
+            h('div', { className: 'gostc-about-tag' }, t('aboutTagline')),
+            h(AboutLink, { href: OFFICIAL_URL }, OFFICIAL_URL)),
+          h('div', { className: 'gostc-about-quick' },
+            chip(OFFICIAL_URL + '/login', t('deepRegister')),
+            chip(OFFICIAL_URL + '/normal/gost/client', t('deepKey')),
+            chip(OFFICIAL_URL + '/download', t('deepDownload')),
+            chip(OFFICIAL_URL + '/normal/gost/client/tunnel', t('deepTunnel')))),
+        h('div', { className: 'gostc-about-cols' },
+          h('div', { className: 'gostc-about-col' },
+            card(t('aboutGuide'), null,
+              h('ol', { className: 'gostc-about-list' },
+                ['guide1', 'guide2', 'guide3', 'guide4', 'guide5'].map((k) => h('li', { key: k }, t(k))))),
+            card(t('aboutFaq'), null,
+              h('div', null, [1, 2, 3, 4].map((n) => h(FaqItem, { key: n, q: t('faq' + n + 'q'), a: t('faq' + n + 'a') })))),
+            card(t('aboutTips'), null,
+              h('ul', { className: 'gostc-about-list' },
+                ['tip1', 'tip2', 'tip3', 'tip4'].map((k) => h('li', { key: k }, t(k)))))),
+          h('div', { className: 'gostc-about-col' },
+            card(t('aboutSelftest'),
+              h(Button, { variant: 'primary', disabled: testing, onClick: runTest }, testing ? t('busy') : t('selftestRun')),
+              test ? h('div', null,
+                h('div', { className: 'gostc-proc-grid' },
+                  h('div', { className: 'gostc-proc-item' }, dot(test.backend && test.backend.healthy), h('span', { className: 'gostc-proc-k' }, t('selftestBackend')), h('span', { className: 'gostc-proc-v' }, test.backend && test.backend.healthy ? (t('selftestOk') + (test.backend.version ? ' ' + test.backend.version : '')) : t('selftestFail'))),
+                  h('div', { className: 'gostc-proc-item' }, dot(test.platform && test.platform.reachable), h('span', { className: 'gostc-proc-k' }, t('selftestPlatform')), h('span', { className: 'gostc-proc-v' }, test.platform && test.platform.reachable ? t('selftestOk') : (test.platform && test.platform.error) || t('selftestFail'))),
+                  test.error ? h('div', { className: 'gostc-proc-item' }, h('span', { className: 'gostc-proc-v', style: { color: 'var(--dsw-alias-state-error-primary)' } }, test.error)) : null),
+                h('div', { className: 'gostc-muted' }, test.backend && test.backend.healthy ? t('selftestHintOk') : t('selftestHintBad')))
+                : h('div', { className: 'gostc-muted' }, t('selftestIdle'))),
+            card(t('aboutEnv'),
+              h(Button, { onClick: doCopy }, copied ? t('diagCopied') : t('diagCopy')),
+              h('div', { className: 'gostc-proc-grid' },
+                h('div', { className: 'gostc-proc-item' }, h('span', { className: 'gostc-proc-k' }, t('envPluginVer')), h('span', { className: 'gostc-proc-v' }, PLUGIN_VERSION)),
+                h('div', { className: 'gostc-proc-item' }, h('span', { className: 'gostc-proc-k' }, t('envBackendVer')), h('span', { className: 'gostc-proc-v' }, version || '—')),
+                h('div', { className: 'gostc-proc-item' }, h('span', { className: 'gostc-proc-k' }, t('envTarget')), h('span', { className: 'gostc-proc-v' }, proc && proc.target ? proc.target.os + '/' + proc.target.arch : '—')),
+                h('div', { className: 'gostc-proc-item' }, h('span', { className: 'gostc-proc-k' }, t('envDataDir')), h('span', { className: 'gostc-proc-v', style: { wordBreak: 'break-all' } }, proc ? proc.dataDir : '—')))),
+            card(t('aboutContact'), null,
+              h('div', { className: 'gostc-about-links' },
+                h(AboutLink, { href: PLUGIN_REPO + '/issues' }, t('contactIssues')),
+                h(AboutLink, { href: UPSTREAM_REPO + '/issues' }, t('contactUpstreamIssues')),
+                proc && proc.contactEmail ? h(AboutLink, { href: 'mailto:' + proc.contactEmail }, t('contactEmail') + ': ' + proc.contactEmail) : null,
+                proc && proc.contactQQ ? h('span', { className: 'gostc-about-link' }, t('contactQQ') + ': ' + proc.contactQQ) : null,
+                proc && proc.contactWeChat ? h('img', { className: 'gostc-qr', src: proc.contactWeChat, alt: t('contactWeChat') }) : null,
+                h('div', { className: 'gostc-muted' }, t('contactAdmin')))),
+            card(t('aboutLinks'), null,
+              h('div', { className: 'gostc-about-links' },
+                h(AboutLink, { href: UPSTREAM_REPO }, t('linkUpstream')),
+                h(AboutLink, { href: UPSTREAM_REPO + '/tree/main/docs' }, t('linkDocs')),
+                h(AboutLink, { href: PLUGIN_REPO }, t('linkPluginRepo')),
+                h(AboutLink, { href: PLUGIN_REPO + '/blob/main/CHANGELOG.md' }, t('linkChangelog')),
+                h(AboutLink, { href: PLUGIN_REPO + '/blob/main/ROADMAP.md' }, t('linkRoadmap')))))));
     }
 
     function GostcPage({ t }) {

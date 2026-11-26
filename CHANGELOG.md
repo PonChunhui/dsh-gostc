@@ -3,6 +3,14 @@
 All notable changes to the **dsh-gostc** DeepSeek Harness plugin are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/); versions follow [SemVer](https://semver.org/).
 
+## [1.4.1] - 2026-11-26
+
+### Changed
+- Redesigned About page layout: a hero header (name + version badge + tagline + official
+  link) with quick-action chips, then a responsive two-column card grid — guide / FAQ / tips
+  on the left, self test / environment / contact / links on the right. Collapses to one
+  column on narrow panels.
+
 ## [1.4.0] - 2026-11-26
 
 ### Added
