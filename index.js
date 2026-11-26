@@ -176,6 +176,15 @@ export function apply(ctx, config) {
         payload = await readJsonBody(req, res);
         if (payload === undefined) return;
       }
+      if (sub === 'selftest') {
+        try {
+          const result = await manager.selftest();
+          sendJson(res, 200, { code: 0, msg: 'ok', data: result });
+        } catch (err) {
+          sendJson(res, 200, { code: 1, msg: err.message || String(err), data: null });
+        }
+        return;
+      }
       try {
         switch (sub) {
           case 'status': break;

@@ -62,6 +62,20 @@ window.__ModuleLoader__.load({
         tip2: '运行中的客户端 / 隧道不可编辑或删除，先关闭开关停止后再修改。',
         tip3: '「安装为服务」会触发 Windows UAC 提权；取消授权会报错，属正常现象。',
         tip4: '客户端连接密钥等同凭证，请勿外传或截图公开；泄露可在官网重置。',
+        deepRegister: '注册 / 登录', deepKey: '获取连接密钥', deepDownload: '下载客户端', deepTunnel: '管理隧道',
+        aboutSelftest: '状态自检', selftestRun: '一键自检', selftestBackend: '本地后端', selftestPlatform: '平台可达',
+        selftestOk: '正常', selftestFail: '异常',
+        selftestHintOk: '后端与平台均正常，可直接在「客户端」页添加连接并开启隧道。',
+        selftestHintBad: '后端未就绪：到「后端进程」页启动或下载客户端；平台不可达：检查网络 / 平台地址。',
+        aboutFaq: '常见问题',
+        faq1q: '提示「无法连接 gostc 后端」怎么办？', faq1a: '到「后端进程」页点「启动」或「下载客户端」；若已有 gostc 客户端在运行，确认其 web 监听地址与设置中的 webAddr 一致（默认 127.0.0.1:18080）。',
+        faq2q: '隧道 / 客户端开关打开后不生效？', faq2a: '确认连接密钥与服务器地址正确、服务端节点在线；查看「日志」页的 FRP 报错；运行中的条目需先停止才能修改配置。',
+        faq3q: '连接密钥在哪里获取？', faq3a: '点上方「获取连接密钥」直达官网客户端页，创建或查看客户端即可看到密钥；密钥等同凭证，请勿外传。',
+        faq4q: '如何让 gostc 开机自启、不依赖本插件？', faq4a: '在「后端进程」页点「安装为服务」（Windows UAC 提权），之后 gostc 作为系统服务独立运行；卸载服务可恢复由插件托管。',
+        linkChangelog: '更新日志', linkRoadmap: '路线图',
+        contactEmail: '邮箱', contactQQ: 'QQ 群', contactWeChat: '微信群',
+        contactEmailLabel: '联系邮箱（可选）', contactQQLabel: 'QQ 群号（可选）', contactWeChatLabel: '微信群二维码图片 URL（可选）',
+        diagCopy: '复制诊断信息', diagCopied: '已复制，可粘贴到 Issues',
         busy: '处理中…',
       },
       en: {
@@ -106,6 +120,20 @@ window.__ModuleLoader__.load({
         tip2: 'Running clients / tunnels cannot be edited or deleted; switch them off first.',
         tip3: 'Install as service triggers Windows UAC elevation; cancelling it reports an error, which is expected.',
         tip4: 'The client key is a credential — do not share or screenshot it publicly; reset it on the website if leaked.',
+        deepRegister: 'Sign up / sign in', deepKey: 'Get connection key', deepDownload: 'Download client', deepTunnel: 'Manage tunnels',
+        aboutSelftest: 'Self test', selftestRun: 'Run self test', selftestBackend: 'Local backend', selftestPlatform: 'Platform reachable',
+        selftestOk: 'OK', selftestFail: 'Failed',
+        selftestHintOk: 'Backend and platform are healthy — add a connection on the Clients tab and enable tunnels.',
+        selftestHintBad: 'Backend not ready: start or download the client on the Backend tab. Platform unreachable: check network / platform URL.',
+        aboutFaq: 'FAQ',
+        faq1q: 'What if it says "cannot connect to gostc backend"?', faq1a: 'On the Backend tab click Start or Download client. If a gostc client is already running, make sure its web listen address matches webAddr in Settings (default 127.0.0.1:18080).',
+        faq2q: 'A tunnel / client switch is on but nothing happens?', faq2a: 'Verify the connection key and server address, and that the server node is online; check FRP errors on the Logs tab. Running entries must be stopped before editing.',
+        faq3q: 'Where do I get the connection key?', faq3a: 'Click "Get connection key" above to open the official client page; create or view a client to see its key. Treat the key as a credential.',
+        faq4q: 'How to auto-start gostc at boot, independent of this plugin?', faq4a: 'On the Backend tab click "Install as service" (Windows UAC). gostc then runs as a system service; uninstall the service to return to plugin-managed mode.',
+        linkChangelog: 'Changelog', linkRoadmap: 'Roadmap',
+        contactEmail: 'Email', contactQQ: 'QQ group', contactWeChat: 'WeChat group',
+        contactEmailLabel: 'Contact email (optional)', contactQQLabel: 'QQ group number (optional)', contactWeChatLabel: 'WeChat QR image URL (optional)',
+        diagCopy: 'Copy diagnostics', diagCopied: 'Copied — paste into an Issue',
         busy: 'Working…',
       },
     };
@@ -115,7 +143,7 @@ window.__ModuleLoader__.load({
     const OFFICIAL_URL = 'https://gostc.linux66.cn';
     const UPSTREAM_REPO = 'https://github.com/SianHH/gostc-open';
     const PLUGIN_REPO = 'https://github.com/PonChunhui/dsh-gostc';
-    const PLUGIN_VERSION = '1.3.0';
+    const PLUGIN_VERSION = '1.4.0';
 
     // ---- API helper: document-relative fetch through the Host proxy ----
     async function api(sub, body) {
@@ -211,6 +239,12 @@ window.__ModuleLoader__.load({
 .gostc-about-link{display:inline-flex;align-items:center;gap:6px;color:var(--dsw-alias-state-business-primary);text-decoration:none;font-weight:600;font-size:13px;}
 .gostc-about-link:hover{text-decoration:underline;}
 .gostc-about-links{display:flex;flex-direction:column;gap:8px;margin-top:8px;}
+.gostc-faq-item{border:1px solid var(--dsw-alias-border-l1);border-radius:var(--dsw-radius-sm);margin-top:8px;overflow:hidden;}
+.gostc-faq-q{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 12px;cursor:pointer;font-weight:600;font-size:13px;}
+.gostc-faq-q:hover{background:var(--dsw-alias-interactive-bg-hover);}
+.gostc-faq-a{padding:0 12px 10px;font-size:13px;color:var(--dsw-alias-label-secondary);line-height:1.6;}
+.gostc-dot{display:inline-block;width:8px;height:8px;border-radius:50%;flex:none;}
+.gostc-qr{width:120px;height:120px;object-fit:contain;border:1px solid var(--dsw-alias-border-l1);border-radius:var(--dsw-radius-sm);background:#fff;}
 .gostc-about-list{margin:8px 0 0;padding-left:20px;display:flex;flex-direction:column;gap:6px;color:var(--dsw-alias-label-secondary);font-size:13px;line-height:1.6;}
 `;
 
@@ -367,6 +401,9 @@ window.__ModuleLoader__.load({
         webUser: snap.webUser || '',
         webPwd: snap.webPwd || '',
         autoStart: snap.autoStart !== false,
+        contactEmail: snap.contactEmail || '',
+        contactQQ: snap.contactQQ || '',
+        contactWeChat: snap.contactWeChat || '',
       }));
       const [saving, setSaving] = useState(false);
       const [saved, setSaved] = useState(false);
@@ -394,7 +431,10 @@ window.__ModuleLoader__.load({
             h(Field, { label: t('webAddrLabel') }, h('input', { className: 'gostc-input', value: form.webAddr, onChange: (e) => set('webAddr', e.target.value) })),
             h(Field, { label: t('webUserLabel') }, h('input', { className: 'gostc-input', value: form.webUser, onChange: (e) => set('webUser', e.target.value) })),
             h(Field, { label: t('webPwdLabel') }, h('input', { className: 'gostc-input', type: 'password', value: form.webPwd, onChange: (e) => set('webPwd', e.target.value) })),
-            h(Field, { label: t('autoStartLabel') }, h(Switch, { checked: form.autoStart, onChange: (v) => set('autoStart', v) }))),
+            h(Field, { label: t('autoStartLabel') }, h(Switch, { checked: form.autoStart, onChange: (v) => set('autoStart', v) })),
+            h(Field, { label: t('contactEmailLabel') }, h('input', { className: 'gostc-input', value: form.contactEmail, placeholder: 'support@example.com', onChange: (e) => set('contactEmail', e.target.value) })),
+            h(Field, { label: t('contactQQLabel') }, h('input', { className: 'gostc-input', value: form.contactQQ, placeholder: '123456789', onChange: (e) => set('contactQQ', e.target.value) })),
+            h(Field, { label: t('contactWeChatLabel') }, h('input', { className: 'gostc-input', value: form.contactWeChat, placeholder: 'https://…/qrcode.png', onChange: (e) => set('contactWeChat', e.target.value) }))),
           h('div', { className: 'gostc-proc-settings-foot' },
             h(Button, { variant: 'primary', disabled: saving, onClick: save }, saving ? t('busy') : t('saveSettings')),
             saved ? h('span', { className: 'gostc-set-ok' }, t('settingsSaved')) : null,
@@ -469,8 +509,37 @@ window.__ModuleLoader__.load({
       return h('a', { className: 'gostc-about-link', href, target: '_blank', rel: 'noopener noreferrer' }, children, h('span', { 'aria-hidden': true }, '↗'));
     }
 
+    function FaqItem({ q, a }) {
+      const [open, setOpen] = useState(false);
+      return h('div', { className: 'gostc-faq-item' },
+        h('div', { className: 'gostc-faq-q', role: 'button', tabIndex: 0, onClick: () => setOpen(!open),
+          onKeyDown: (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setOpen(!open); } } },
+          h('span', null, q), h('span', { className: 'gostc-muted' }, open ? '▾' : '▸')),
+        open ? h('div', { className: 'gostc-faq-a' }, a) : null);
+    }
+
+    function copyText(text) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        return navigator.clipboard.writeText(text).then(() => true).catch(() => legacyCopy(text));
+      }
+      return Promise.resolve(legacyCopy(text));
+    }
+    function legacyCopy(text) {
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.select();
+        const ok = document.execCommand('copy');
+        document.body.removeChild(ta);
+        return ok;
+      } catch { return false; }
+    }
+
     function AboutView({ t, version }) {
       const [proc, setProc] = useState(null);
+      const [test, setTest] = useState(null);
+      const [testing, setTesting] = useState(false);
+      const [copied, setCopied] = useState(false);
       useEffect(() => {
         let alive = true;
         processCall('status', {}).then((j) => { if (alive && j && j.data) setProc(j.data); }).catch(() => {});
@@ -478,25 +547,68 @@ window.__ModuleLoader__.load({
       }, []);
       const section = (title, body) => h('div', { className: 'gostc-proc-section' },
         h('div', { className: 'gostc-proc-section-title' }, title), body);
+      const dot = (ok) => h('span', { className: 'gostc-dot', style: { background: ok ? 'var(--dsw-alias-state-success-primary)' : 'var(--dsw-alias-state-error-primary)' } });
+      const runTest = async () => {
+        setTesting(true);
+        try { const j = await processCall('selftest', {}); setTest(j && j.code === 0 ? j.data : { error: j && j.msg }); }
+        catch (e) { setTest({ error: e.message }); }
+        finally { setTesting(false); }
+      };
+      const diagText = () => [
+        'gostc plugin diagnostics',
+        'plugin: dsh-gostc ' + PLUGIN_VERSION,
+        'backend version: ' + (version || '-'),
+        'backend url: ' + (proc ? proc.backend : '-'),
+        'phase: ' + (proc ? proc.phase : '-') + ' / mode: ' + (proc ? (proc.mode || '-') : '-'),
+        'target: ' + (proc && proc.target ? proc.target.os + '/' + proc.target.arch : '-'),
+        'dataDir: ' + (proc ? proc.dataDir : '-'),
+        'platformUrl: ' + (proc ? proc.platformUrl : '-'),
+        'time: ' + new Date().toISOString(),
+      ].join('\n');
+      const doCopy = async () => { const ok = await copyText(diagText()); setCopied(ok); setTimeout(() => setCopied(false), 2000); };
       return h('div', { className: 'gostc-proc' },
         section(t('aboutOfficial'), h('div', { className: 'gostc-about-official' },
           h(AboutLink, { href: OFFICIAL_URL }, OFFICIAL_URL),
-          h('div', { className: 'gostc-muted' }, t('aboutOfficialHint')))),
+          h('div', { className: 'gostc-muted' }, t('aboutOfficialHint')),
+          h('div', { className: 'gostc-about-links', style: { marginTop: '8px' } },
+            h(AboutLink, { href: OFFICIAL_URL + '/login' }, t('deepRegister')),
+            h(AboutLink, { href: OFFICIAL_URL + '/normal/gost/client' }, t('deepKey')),
+            h(AboutLink, { href: OFFICIAL_URL + '/download' }, t('deepDownload')),
+            h(AboutLink, { href: OFFICIAL_URL + '/normal/gost/client/tunnel' }, t('deepTunnel'))))),
+        section(t('aboutSelftest'), h('div', null,
+          h('div', { className: 'gostc-proc-settings-foot', style: { marginTop: 0 } },
+            h(Button, { variant: 'primary', disabled: testing, onClick: runTest }, testing ? t('busy') : t('selftestRun')),
+            copied ? h('span', { className: 'gostc-set-ok' }, t('diagCopied')) : null),
+          test ? h('div', { className: 'gostc-proc-grid', style: { marginTop: '8px' } },
+            h('div', { className: 'gostc-proc-item' }, dot(test.backend && test.backend.healthy), h('span', { className: 'gostc-proc-k' }, t('selftestBackend')), h('span', { className: 'gostc-proc-v' }, test.backend && test.backend.healthy ? (t('selftestOk') + (test.backend.version ? ' ' + test.backend.version : '')) : t('selftestFail'))),
+            h('div', { className: 'gostc-proc-item' }, dot(test.platform && test.platform.reachable), h('span', { className: 'gostc-proc-k' }, t('selftestPlatform')), h('span', { className: 'gostc-proc-v' }, test.platform && test.platform.reachable ? t('selftestOk') : (test.platform && test.platform.error) || t('selftestFail'))),
+            test.error ? h('div', { className: 'gostc-proc-item' }, h('span', { className: 'gostc-proc-v', style: { color: 'var(--dsw-alias-state-error-primary)' } }, test.error)) : null,
+            h('div', { className: 'gostc-muted', style: { gridColumn: '1 / -1' } }, test.backend && test.backend.healthy ? t('selftestHintOk') : t('selftestHintBad'))) : null)),
         section(t('aboutGuide'), h('ol', { className: 'gostc-about-list' },
           ['guide1', 'guide2', 'guide3', 'guide4', 'guide5'].map((k) => h('li', { key: k }, t(k))))),
+        section(t('aboutFaq'), h('div', null,
+          [1, 2, 3, 4].map((n) => h(FaqItem, { key: n, q: t('faq' + n + 'q'), a: t('faq' + n + 'a') })))),
         section(t('aboutLinks'), h('div', { className: 'gostc-about-links' },
           h(AboutLink, { href: UPSTREAM_REPO }, t('linkUpstream')),
           h(AboutLink, { href: UPSTREAM_REPO + '/tree/main/docs' }, t('linkDocs')),
-          h(AboutLink, { href: PLUGIN_REPO }, t('linkPluginRepo')))),
+          h(AboutLink, { href: PLUGIN_REPO }, t('linkPluginRepo')),
+          h(AboutLink, { href: PLUGIN_REPO + '/blob/main/CHANGELOG.md' }, t('linkChangelog')),
+          h(AboutLink, { href: PLUGIN_REPO + '/blob/main/ROADMAP.md' }, t('linkRoadmap')))),
         section(t('aboutContact'), h('div', { className: 'gostc-about-links' },
           h(AboutLink, { href: PLUGIN_REPO + '/issues' }, t('contactIssues')),
           h(AboutLink, { href: UPSTREAM_REPO + '/issues' }, t('contactUpstreamIssues')),
+          proc && proc.contactEmail ? h(AboutLink, { href: 'mailto:' + proc.contactEmail }, t('contactEmail') + ': ' + proc.contactEmail) : null,
+          proc && proc.contactQQ ? h('span', { className: 'gostc-about-link' }, t('contactQQ') + ': ' + proc.contactQQ) : null,
+          proc && proc.contactWeChat ? h('img', { className: 'gostc-qr', src: proc.contactWeChat, alt: t('contactWeChat') }) : null,
           h('div', { className: 'gostc-muted' }, t('contactAdmin')))),
-        section(t('aboutEnv'), h('div', { className: 'gostc-proc-grid' },
-          h('div', { className: 'gostc-proc-item' }, h('span', { className: 'gostc-proc-k' }, t('envPluginVer')), h('span', { className: 'gostc-proc-v' }, PLUGIN_VERSION)),
-          h('div', { className: 'gostc-proc-item' }, h('span', { className: 'gostc-proc-k' }, t('envBackendVer')), h('span', { className: 'gostc-proc-v' }, version || '—')),
-          h('div', { className: 'gostc-proc-item' }, h('span', { className: 'gostc-proc-k' }, t('envTarget')), h('span', { className: 'gostc-proc-v' }, proc && proc.target ? proc.target.os + '/' + proc.target.arch : '—')),
-          h('div', { className: 'gostc-proc-item' }, h('span', { className: 'gostc-proc-k' }, t('envDataDir')), h('span', { className: 'gostc-proc-v', style: { wordBreak: 'break-all' } }, proc ? proc.dataDir : '—')))),
+        section(t('aboutEnv'), h('div', null,
+          h('div', { className: 'gostc-proc-grid' },
+            h('div', { className: 'gostc-proc-item' }, h('span', { className: 'gostc-proc-k' }, t('envPluginVer')), h('span', { className: 'gostc-proc-v' }, PLUGIN_VERSION)),
+            h('div', { className: 'gostc-proc-item' }, h('span', { className: 'gostc-proc-k' }, t('envBackendVer')), h('span', { className: 'gostc-proc-v' }, version || '—')),
+            h('div', { className: 'gostc-proc-item' }, h('span', { className: 'gostc-proc-k' }, t('envTarget')), h('span', { className: 'gostc-proc-v' }, proc && proc.target ? proc.target.os + '/' + proc.target.arch : '—')),
+            h('div', { className: 'gostc-proc-item' }, h('span', { className: 'gostc-proc-k' }, t('envDataDir')), h('span', { className: 'gostc-proc-v', style: { wordBreak: 'break-all' } }, proc ? proc.dataDir : '—'))),
+          h('div', { className: 'gostc-proc-settings-foot' },
+            h(Button, { onClick: doCopy }, copied ? t('diagCopied') : t('diagCopy'))))),
         section(t('aboutTips'), h('ul', { className: 'gostc-about-list' },
           ['tip1', 'tip2', 'tip3', 'tip4'].map((k) => h('li', { key: k }, t(k))))));
     }

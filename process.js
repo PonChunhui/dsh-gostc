@@ -19,7 +19,7 @@ import os from 'node:os';
 
 const MAX_LOG = 8000;
 const MAX_RESTARTS = 3;
-const SETTINGS_KEYS = ['platformUrl', 'clientPackage', 'webAddr', 'webUser', 'webPwd', 'autoStart'];
+const SETTINGS_KEYS = ['platformUrl', 'clientPackage', 'webAddr', 'webUser', 'webPwd', 'autoStart', 'contactEmail', 'contactQQ', 'contactWeChat'];
 /** Official gostc platform; used as the default download source / homepage. */
 export const DEFAULT_PLATFORM_URL = 'https://gostc.linux66.cn';
 
@@ -142,6 +142,9 @@ export function createProcessManager(ctx, config) {
     webUser: String(config?.webUser || ''),
     webPwd: String(config?.webPwd || ''),
     autoStart: config?.autoStart !== false,
+    contactEmail: String(config?.contactEmail || ''),
+    contactQQ: String(config?.contactQQ || ''),
+    contactWeChat: String(config?.contactWeChat || ''),
   };
   try {
     const saved = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
@@ -237,6 +240,34 @@ export function createProcessManager(ctx, config) {
     } finally {
       clearTimeout(timer);
     }
+  }
+
+  /** One-click self test: local backend health + platform reachability. */
+  async function selftest() {
+    const backendResult = await probe();
+    const platform = { url: live.platformUrl, reachable: false, status: null, error: null };
+    if (!live.platformUrl) {
+      platform.error = '未配置平台地址';
+    } else {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 4000);
+      try {
+        const res = await fetch(`${live.platformUrl}/api/v1/public/download/list`, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json', accept: 'application/json' },
+          body: '{}',
+          signal: ctrl.signal,
+        });
+        platform.status = res.status;
+        platform.reachable = res.ok;
+        if (!res.ok) platform.error = `HTTP ${res.status}`;
+      } catch (err) {
+        platform.error = err.message || String(err);
+      } finally {
+        clearTimeout(timer);
+      }
+    }
+    return { backend: backendResult, platform, target, dataDir, backendUrl: backend };
   }
 
   async function runVersion() {
@@ -523,6 +554,7 @@ export function createProcessManager(ctx, config) {
     snapshot,
     getSettings,
     updateSettings,
+    selftest,
     probe,
     start,
     stop,
