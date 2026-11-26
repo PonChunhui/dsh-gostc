@@ -1,0 +1,18 @@
+dsh-gostc
+Copyright (c) 2026 PonChunhui
+
+This product is a DeepSeek Harness plugin that manages the gostc
+intranet-penetration client. It does not include gostc's source code or
+binaries; the gostc command-line client is downloaded at runtime from the
+user's own gostc platform.
+
+gostc / gostc-open
+Copyright (c) SianHH and contributors
+Licensed under the Apache License, Version 2.0
+https://github.com/SianHH/gostc-open
+https://www.apache.org/licenses/LICENSE-2.0
+
+DeepSeek Harness
+Copyright (c) DeepSeek
+Licensed under the MIT License
+https://github.com/deepseek-ai/deepseek-harness
