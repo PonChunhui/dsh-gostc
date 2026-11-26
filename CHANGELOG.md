@@ -3,6 +3,13 @@
 All notable changes to the **dsh-gostc** DeepSeek Harness plugin are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/); versions follow [SemVer](https://semver.org/).
 
+## [1.4.2] - 2026-11-26
+
+### Removed
+- About page: dropped the "gostc core issues (upstream Issues)" link from Contact &
+  feedback and the "gostc upstream repo (SianHH/gostc-open)" link from Links, keeping
+  the plugin's own Issues / repo and the user-docs link.
+
 ## [1.4.1] - 2026-11-26
 
 ### Changed

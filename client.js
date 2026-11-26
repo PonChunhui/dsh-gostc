@@ -55,8 +55,8 @@ window.__ModuleLoader__.load({
         guide3: '在「客户端」页新增连接：填名称、服务端地址与连接密钥（官网「客户端 → 连接密钥」获取），打开开关即建立穿透。',
         guide4: '需要把本地服务暴露到公网时，在「隧道」或「P2P」页新增条目并启动；公网地址见卡片上的「地址2」。',
         guide5: '运行日志在「日志」页查看；运行中的条目不可编辑 / 删除，请先停止再修改。',
-        linkUpstream: 'gostc 上游仓库（SianHH/gostc-open）', linkDocs: '使用文档（仓库 docs 目录）', linkPluginRepo: '本插件仓库（PonChunhui/dsh-gostc）',
-        contactIssues: '提交问题 / 建议（本插件 Issues）', contactUpstreamIssues: 'gostc 本体问题（上游 Issues）',
+        linkDocs: '使用文档（仓库 docs 目录）', linkPluginRepo: '本插件仓库（PonChunhui/dsh-gostc）',
+        contactIssues: '提交问题 / 建议（本插件 Issues）',
         contactAdmin: '账号、节点、套餐等问题请联系你所用站点的管理员（官网登录后可见联系方式）；本插件仅负责本地客户端与穿透管理。',
         envPluginVer: '插件版本', envBackendVer: '后端版本', envTarget: '系统 / 架构', envDataDir: '数据目录',
         tip1: '连接失败：确认后端已启动、平台地址正确；面板会给出错误与重试按钮。',
@@ -115,8 +115,8 @@ window.__ModuleLoader__.load({
         guide3: 'On the Clients tab add a connection: name, server address and key (from the website "Clients → key"); flip the switch to tunnel.',
         guide4: 'To expose a local service publicly, add an entry on the Tunnel or P2P tab and start it; the public address is shown as "address 2".',
         guide5: 'View runtime logs on the Logs tab; running entries cannot be edited/deleted — stop them first.',
-        linkUpstream: 'gostc upstream repo (SianHH/gostc-open)', linkDocs: 'User docs (repo docs folder)', linkPluginRepo: 'This plugin repo (PonChunhui/dsh-gostc)',
-        contactIssues: 'Report issues / suggestions (plugin Issues)', contactUpstreamIssues: 'gostc core issues (upstream Issues)',
+        linkDocs: 'User docs (repo docs folder)', linkPluginRepo: 'This plugin repo (PonChunhui/dsh-gostc)',
+        contactIssues: 'Report issues / suggestions (plugin Issues)',
         contactAdmin: 'For account / node / plan issues contact your site admin (contact info on the website after sign-in); this plugin only manages the local client and tunnels.',
         envPluginVer: 'Plugin version', envBackendVer: 'Backend version', envTarget: 'OS / arch', envDataDir: 'Data dir',
         tip1: 'Connection failed: make sure the backend is running and the platform URL is correct; the panel shows the error and a retry button.',
@@ -147,7 +147,7 @@ window.__ModuleLoader__.load({
     const OFFICIAL_URL = 'https://gostc.linux66.cn';
     const UPSTREAM_REPO = 'https://github.com/SianHH/gostc-open';
     const PLUGIN_REPO = 'https://github.com/PonChunhui/dsh-gostc';
-    const PLUGIN_VERSION = '1.4.1';
+    const PLUGIN_VERSION = '1.4.2';
 
     // ---- API helper: document-relative fetch through the Host proxy ----
     async function api(sub, body) {
@@ -632,14 +632,12 @@ window.__ModuleLoader__.load({
             card(t('aboutContact'), null,
               h('div', { className: 'gostc-about-links' },
                 h(AboutLink, { href: PLUGIN_REPO + '/issues' }, t('contactIssues')),
-                h(AboutLink, { href: UPSTREAM_REPO + '/issues' }, t('contactUpstreamIssues')),
                 proc && proc.contactEmail ? h(AboutLink, { href: 'mailto:' + proc.contactEmail }, t('contactEmail') + ': ' + proc.contactEmail) : null,
                 proc && proc.contactQQ ? h('span', { className: 'gostc-about-link' }, t('contactQQ') + ': ' + proc.contactQQ) : null,
                 proc && proc.contactWeChat ? h('img', { className: 'gostc-qr', src: proc.contactWeChat, alt: t('contactWeChat') }) : null,
                 h('div', { className: 'gostc-muted' }, t('contactAdmin')))),
             card(t('aboutLinks'), null,
               h('div', { className: 'gostc-about-links' },
-                h(AboutLink, { href: UPSTREAM_REPO }, t('linkUpstream')),
                 h(AboutLink, { href: UPSTREAM_REPO + '/tree/main/docs' }, t('linkDocs')),
                 h(AboutLink, { href: PLUGIN_REPO }, t('linkPluginRepo')),
                 h(AboutLink, { href: PLUGIN_REPO + '/blob/main/CHANGELOG.md' }, t('linkChangelog')),

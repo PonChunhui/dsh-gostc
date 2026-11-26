@@ -1,6 +1,6 @@
 {
   "name": "dsh-gostc",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "type": "module",
   "description": "Gostc intranet-penetration manager for DeepSeek Harness: manage clients, tunnels and P2P links, and auto-download and launch the matching command-line client.",
   "license": "MIT",
