@@ -212,7 +212,17 @@ export function apply(ctx, config) {
       if (!prefixes || !prefixes.has(REGISTER_PROCESS_PATH)) {
         disposers.push(serverCtx.webServer.register({ kind: 'prefix', path: REGISTER_PROCESS_PATH, handler: processHandler }));
       }
-      return () => { for (const d of disposers) { try { d(); } catch {} } };
+      // Watchdog: long-lived hosts can lose prefix rows if the web server's
+      // route table is rebuilt underneath us; re-add silently when missing.
+      const timer = setInterval(() => {
+        const px = serverCtx.webServer && serverCtx.webServer.prefixes;
+        if (!px) return;
+        try {
+          if (!px.has(REGISTER_PATH)) disposers.push(serverCtx.webServer.register({ kind: 'prefix', path: REGISTER_PATH, handler: apiHandler }));
+          if (!px.has(REGISTER_PROCESS_PATH)) disposers.push(serverCtx.webServer.register({ kind: 'prefix', path: REGISTER_PROCESS_PATH, handler: processHandler }));
+        } catch {}
+      }, 30000);
+      return () => { clearInterval(timer); for (const d of disposers) { try { d(); } catch {} } };
     }, 'gostc-routes');
   };
 

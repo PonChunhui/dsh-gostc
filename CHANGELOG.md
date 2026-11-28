@@ -3,6 +3,13 @@
 All notable changes to the **dsh-gostc** DeepSeek Harness plugin are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/); versions follow [SemVer](https://semver.org/).
 
+## [1.4.6] - 2026-11-28
+
+### Fixed
+- Route watchdog: on long-lived hosts the web server's prefix table can lose the
+  plugin's rows (panel then reports "后端响应解析失败 (405)"). A 30s watchdog
+  re-registers `/gostc/api` and `/gostc/process` silently whenever missing.
+
 ## [1.4.5] - 2026-11-26
 
 ### Changed

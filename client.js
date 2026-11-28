@@ -153,7 +153,7 @@ window.__ModuleLoader__.load({
     const OFFICIAL_URL = 'https://gostc.shop';
     const UPSTREAM_REPO = 'https://github.com/SianHH/gostc-open';
     const PLUGIN_REPO = 'https://github.com/PonChunhui/dsh-gostc';
-    const PLUGIN_VERSION = '1.4.5';
+    const PLUGIN_VERSION = '1.4.6';
 
     // ---- API helper: document-relative fetch through the Host proxy ----
     async function api(sub, body) {
